@@ -33,6 +33,12 @@ if (specialist.toLowerCase() === "ophthalmologist" || specialist.toLowerCase() =
 
     var channelFactory = new stompit.ChannelFactory(connections);
 
+    var doctorsListGrandOak = new Set();
+    var doctorsListPineValley = new Set();
+
+    var GrandOakOnce = false;
+    var PineValleyOnce = false;
+
     channelFactory.channel(function(error, channel) {
     
         if (error) {
@@ -46,26 +52,30 @@ if (specialist.toLowerCase() === "ophthalmologist" || specialist.toLowerCase() =
             // 'selector': `key = '${specialist.toLowerCase()}'`
         };
 
-        channel.subscribe(headersGrandOak, function(error, message, subscription){
-            console.log()
-            if (error) {
-                console.log('subscribe error: ' + error.message);
-                return;
-            }
-            
-            message.readString('utf8', function(error, string) {
+        if (GrandOakOnce === false) {
+            channel.subscribe(headersGrandOak, function(error, message, subscription){
+                console.log()
                 if (error) {
-                    console.log('read message error: ' + error.message);
+                    console.log('subscribe error: ' + error.message);
                     return;
                 }
-                console.log('receive message: ' + string);
+                
+                message.readString('utf8', function(error, string) {
+                    if (error) {
+                        console.log('read message error: ' + error.message);
+                        return;
+                    }
+                    doctorsListGrandOak.add(JSON.parse(string));
+                });
+    
+                message.on('end', function(){
+                    console.log(doctorsListGrandOak.values());
+    
+                    GrandOakOnce = true;
+                });
             });
-            
-            // message.on('end', function(){
-            //     channel.nack();
-            // });
-        });
-
+        }
+        
         // Pine Valley
         var headersPineValley = {
             'destination': `/queue/pineValley-${specialist}`,
@@ -73,20 +83,28 @@ if (specialist.toLowerCase() === "ophthalmologist" || specialist.toLowerCase() =
             // 'selector': `key = '${specialist.toLowerCase()}'`
         };
 
-        channel.subscribe(headersPineValley, function(error, message, subscription){
+        if (PineValleyOnce === false) {
+            channel.subscribe(headersPineValley, function(error, message, subscription){
             
-            if (error) {
-                console.log('subscribe error: ' + error.message);
-                return;
-            }
-            
-            message.readString('utf8', function(error, string) {
                 if (error) {
-                    console.log('read message error: ' + error.message);
+                    console.log('subscribe error: ' + error.message);
                     return;
                 }
-                console.log('receive message: ' + string);
+                
+                message.readString('utf8', function(error, string) {
+                    if (error) {
+                        console.log('read message error: ' + error.message);
+                        return;
+                    }
+                    doctorsListPineValley.add(JSON.parse(string));
+                });
+                
+                message.on('end', function(){
+                    console.log(doctorsListPineValley.values());
+    
+                    PineValleyOnce = true;
+                });
             });
-        });
+        }
     });
 };

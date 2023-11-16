@@ -44,41 +44,110 @@ channelFactory.channel(function(error, channel) {
         return;
     }
     
-    for (specialist of specialists) {
-        var headers = {
-            'destination': `/queue/grandOak-${specialist}`,
-            'persistent': 'true',
+    // var headers = {
+    //     'destination': `/queue/grandOak-ophthalmologist`,
+    //     'persistent': 'true',
+    // };
+    
+    fetch(`http://localhost:9090/grandOak/doctors/ophthalmologist`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        }
+    })
+    .then(res => res.json())
+    .then(data => {
+        for (let i = 0; i < data['doctors']['doctor'].length; i++) {
+            var body = JSON.stringify({
+                name: data['doctors']['doctor'][i].name,
+                time: data['doctors']['doctor'][i].time,
+                hospital: data['doctors']['doctor'][i].hospital
+            });
+
+            const SendMessage = () => {
+                channel.send({
+                    'destination': `/queue/grandOak-ophthalmologist`,
+                    'persistent': 'true',
+                }, body, function(error){
+                    if (error) {
+                        console.log('send error: ' + error.message);
+                        return;
+                    } else {
+                        console.log(`Sent message ophthalmologist to /queue/grandOak-ophthalmologist`);
+                    }
+                })
+            };
+            SendMessage();
         };
-        
-        fetch(`http://localhost:9090/grandOak/doctors/${specialist}`, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json'
-            }
-        })
-            .then(res => res.json())
-            .then(data => {
-                for (let i = 0; i < data['doctors']['doctor'].length; i++) {
-                    var body = JSON.stringify({
-                        name: data['doctors']['doctor'][i].name,
-                        time: data['doctors']['doctor'][i].time,
-                        hospital: data['doctors']['doctor'][i].hospital
-                    });
-        
-                    const SendMessage = () => {
-                        channel.send(headers, body, function(error){
-                            if (error) {
-                                console.log('send error: ' + error.message);
-                                return;
-                            } else {
-                                console.log(`Sent message ${specialist} to ${headers['destination']}`);
-                            }
-                        })
-                    };
-                    SendMessage();
-                };
-            })
-            .catch(err => { console.log(err) });
-    };
+    })
+    .catch(err => { console.log(err) });
+
+    fetch(`http://localhost:9090/grandOak/doctors/physician`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        }
+    })
+    .then(res => res.json())
+    .then(data => {
+        for (let i = 0; i < data['doctors']['doctor'].length; i++) {
+            var body = JSON.stringify({
+                name: data['doctors']['doctor'][i].name,
+                time: data['doctors']['doctor'][i].time,
+                hospital: data['doctors']['doctor'][i].hospital
+            });
+
+            const SendMessage = () => {
+                channel.send({
+                    'destination': `/queue/grandOak-physician`,
+                    'persistent': 'true',
+                }, body, function(error){
+                    if (error) {
+                        console.log('send error: ' + error.message);
+                        return;
+                    } else {
+                        console.log(`Sent message physician to /queue/grandOak-physician`);
+                    }
+                })
+            };
+            SendMessage();
+        };
+    })
+    .catch(err => { console.log(err) });
+
+    fetch(`http://localhost:9090/grandOak/doctors/pediatrician`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        }
+    })
+    .then(res => res.json())
+    .then(data => {
+        for (let i = 0; i < data['doctors']['doctor'].length; i++) {
+            var body = JSON.stringify({
+                name: data['doctors']['doctor'][i].name,
+                time: data['doctors']['doctor'][i].time,
+                hospital: data['doctors']['doctor'][i].hospital
+            });
+
+            const SendMessage = () => {
+                channel.send({
+                    'destination': `/queue/grandOak-pediatrician`,
+                    'persistent': 'true',
+                }, body, function(error){
+                    if (error) {
+                        console.log('send error: ' + error.message);
+                        return;
+                    } else {
+                        console.log(`Sent message pediatrician to /queue/grandOak-pediatrician`);
+                    }
+                })
+            };
+            SendMessage();
+        };
+    })
+    .catch(err => { console.log(err) });
 });

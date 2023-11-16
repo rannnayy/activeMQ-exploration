@@ -44,46 +44,105 @@ channelFactory.channel(function(error, channel) {
         return;
     }
     
-    for (specialist of specialists) {
-        var headers = {
-            'destination': `/queue/pineValley-${specialist}`,
-            'persistent': 'true',
-        };
-        
-        fetch(`http://localhost:9091/pineValley/doctors/`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json'
-            },
-            body: JSON.stringify({
-                "doctorType": specialist,
-            })
+    fetch(`http://localhost:9091/pineValley/doctors/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+            "doctorType": 'ophthalmologist',
         })
-            .then(res => res.json())
-            .then(data => {
-                // console.log(data['doctors']['doctor']);
-                for (let i = 0; i < data['doctors']['doctor'].length; i++) {
-                    var body = JSON.stringify({
-                        name: data['doctors']['doctor'][i].name,
-                        time: data['doctors']['doctor'][i].time,
-                        hospital: data['doctors']['doctor'][i].hospital
-                    });
-        
-                    const SendMessage = () => {
-                        channel.send(headers, body, function(error){
-                            if (error) {
-                                console.log('send error: ' + error.message);
-                                return;
-                            } else {
-                                console.log(`Sent message ${specialist} to ${headers['destination']}`);
-                                // channel.nack();
-                            }
-                        })
-                    }
-                    SendMessage();
-                };
+    })
+    .then(res => res.json())
+    .then(data => {
+        for (let i = 0; i < data['doctors']['doctor'].length; i++) {
+            var body = JSON.stringify({
+                name: data['doctors']['doctor'][i].name,
+                time: data['doctors']['doctor'][i].time,
+                hospital: data['doctors']['doctor'][i].hospital
+            });
+
+            channel.send({
+                'destination': `/queue/pineValley-ophthalmologist`,
+                'persistent': 'true',
+            }, body, function(error){
+                if (error) {
+                    console.log('send error: ' + error.message);
+                    return;
+                } else {
+                    console.log(`Sent message ophthalmologist to /queue/pineValley-ophthalmologist`);
+                }
             })
-            .catch(err => { console.log(err) });
-    };
+        };
+    })
+    .catch(err => { console.log(err) });
+    
+    fetch(`http://localhost:9091/pineValley/doctors/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+            "doctorType": 'physician',
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        for (let i = 0; i < data['doctors']['doctor'].length; i++) {
+            var body = JSON.stringify({
+                name: data['doctors']['doctor'][i].name,
+                time: data['doctors']['doctor'][i].time,
+                hospital: data['doctors']['doctor'][i].hospital
+            });
+
+            channel.send({
+                'destination': `/queue/pineValley-physician`,
+                'persistent': 'true',
+            }, body, function(error){
+                if (error) {
+                    console.log('send error: ' + error.message);
+                    return;
+                } else {
+                    console.log(`Sent message physician to /queue/pineValley-physician`);
+                }
+            })
+        };
+    })
+    .catch(err => { console.log(err) });
+
+    fetch(`http://localhost:9091/pineValley/doctors/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+            "doctorType": 'pediatrician',
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        for (let i = 0; i < data['doctors']['doctor'].length; i++) {
+            var body = JSON.stringify({
+                name: data['doctors']['doctor'][i].name,
+                time: data['doctors']['doctor'][i].time,
+                hospital: data['doctors']['doctor'][i].hospital
+            });
+
+            channel.send({
+                'destination': `/queue/pineValley-pediatrician`,
+                'persistent': 'true',
+            }, body, function(error){
+                if (error) {
+                    console.log('send error: ' + error.message);
+                    return;
+                } else {
+                    console.log(`Sent message pediatrician to /queue/pineValley-pediatrician`);
+                }
+            })
+        };
+    })
+    .catch(err => { console.log(err) });
 });
